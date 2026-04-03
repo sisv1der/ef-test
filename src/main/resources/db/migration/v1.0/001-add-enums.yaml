@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-add-enums
+      author: Ivan-Yarigo
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE TYPE card_status AS ENUM ('ACTIVE', 'BLOCKED', 'EXPIRED');
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE TYPE role AS ENUM ('ADMIN', 'USER');
