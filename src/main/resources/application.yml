@@ -14,8 +14,23 @@ spring:
     change-log: db/migration/db.changelog-master.yaml
 
 jwt:
-  secret: ${JWT_SECRET}
+  secretKey: ${JWT_SECRET}
   expiration: 3600000 # 1 hour expiration rate
+
+cors:
+  allowed-origins:
+    - http://localhost:3000
+    - http://localhost:5173
+  allowed-headers:
+    - "*"
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - PATCH
+    - OPTIONS
+  allow-credentials: true
 
 logging:
   level:
