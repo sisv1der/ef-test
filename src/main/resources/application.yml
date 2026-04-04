@@ -37,3 +37,6 @@ logging:
     root: info
     com.example: debug
     com.example.bankcards: trace
+
+encryption:
+  secret-key: ${CARD_NUMBER_CIPHER_KEY}

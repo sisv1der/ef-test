@@ -37,6 +37,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(EncryptionServiceException.class)
+    public ProblemDetail handleEncryptionServiceException(WebRequest request) {
+        return getProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Card encryption failed",
+                CARD_ENCRYPTION_FAILED,
+                request
+        );
+    }
+
     private ProblemDetail getProblemDetail(
             HttpStatus status,
             String message,
