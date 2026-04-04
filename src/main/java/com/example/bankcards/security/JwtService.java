@@ -1,11 +1,14 @@
 package com.example.bankcards.security;
 
 import com.example.bankcards.config.JwtProperties;
+import com.example.bankcards.exception.JwtServiceException;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -17,19 +20,25 @@ import java.util.UUID;
 @Service
 public class JwtService {
 
+    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
     private final JwtProperties jwtProperties;
     private final MACSigner signer;
 
-    public JwtService(JwtProperties jwtProperties) throws KeyLengthException {
+    public JwtService(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
-        this.signer = new MACSigner(getSecretKey());
+        try {
+            this.signer = new MACSigner(getSecretKey());
+        } catch (KeyLengthException e) {
+            log.error("failed to create JwtService bean", e);
+            throw new JwtServiceException("failed to create JwtService bean", e);
+        }
     }
 
     private byte[] getSecretKey() {
         return jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8);
     }
 
-    public String generateToken(UserDetails userDetails) throws JOSEException {
+    public String generateToken(UserDetails userDetails) {
         long now = System.currentTimeMillis();
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(userDetails.getUsername())
@@ -40,22 +49,51 @@ public class JwtService {
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), jwtClaimsSet);
-        signedJWT.sign(signer);
+        try {
+            signedJWT.sign(signer);
+        } catch (JOSEException e) {
+            log.warn("Failed to generate token", e);
+            throw new JwtServiceException("Failed to generate token", e);
+        }
 
         return signedJWT.serialize();
     }
 
-    public boolean verifyToken(String token) throws JOSEException, ParseException {
-        SignedJWT signedJWT = SignedJWT.parse(token);
-        boolean validSignature = signedJWT.verify(new MACVerifier(getSecretKey()));
+    public boolean verifyToken(String token) {
+        SignedJWT signedJWT;
+        try {
+            signedJWT = SignedJWT.parse(token);
+        } catch (ParseException e) {
+            log.warn("Failed to parse token", e);
+            throw new JwtServiceException("Failed to parse token", e);
+        }
 
-        Date expirationDate = signedJWT.getJWTClaimsSet().getExpirationTime();
+        boolean validSignature;
+        try {
+            validSignature = signedJWT.verify(new MACVerifier(getSecretKey()));
+        } catch (JOSEException e) {
+            log.warn("Failed to verify token", e);
+            throw new JwtServiceException("Failed to verify token", e);
+        }
+
+        Date expirationDate;
+        try {
+            expirationDate = signedJWT.getJWTClaimsSet().getExpirationTime();
+        } catch (ParseException e) {
+            log.warn("Failed to parse expiration date", e);
+            throw new JwtServiceException("Failed to parse expirationDate", e);
+        }
         boolean isNotExpired = expirationDate != null && new Date().before(expirationDate);
 
         return validSignature && isNotExpired;
     }
 
-    public String extractUsername(String token) throws ParseException {
-        return SignedJWT.parse(token).getJWTClaimsSet().getSubject();
+    public String extractUsername(String token) {
+        try {
+            return SignedJWT.parse(token).getJWTClaimsSet().getSubject();
+        } catch (ParseException e) {
+            log.warn("Failed to parse token", e);
+            throw new JwtServiceException("Failed to parse token", e);
+        }
     }
 }
