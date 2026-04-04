@@ -20,11 +20,17 @@ public class Card {
     @JoinColumn(name = "owner_user_id", nullable = false)
     private User owner;
 
-    @Column(unique = true, nullable = false)
-    private String numberHash;
+    @Column(nullable = false)
+    private String ownerName;
 
-    @Column(nullable = false, length = 4)
-    private String lastDigits;
+    @Column(unique = true, nullable = false)
+    private String encryptedNumber;
+
+    @Column(nullable = false)
+    private String salt;
+
+    @Column(nullable = false)
+    private String iv;
 
     @Column(nullable = false)
     private BigDecimal balance;
@@ -39,11 +45,13 @@ public class Card {
     public Card() {
     }
 
-    public Card(UUID id, User owner, String numberHash, String lastDigits, BigDecimal balance, CardStatus status, Instant expirationDate) {
+    public Card(UUID id, User owner, String ownerName, String encryptedNumber, String salt, String iv, BigDecimal balance, CardStatus status, Instant expirationDate) {
         this.id = id;
         this.owner = owner;
-        this.numberHash = numberHash;
-        this.lastDigits = lastDigits;
+        this.ownerName = ownerName;
+        this.encryptedNumber = encryptedNumber;
+        this.salt = salt;
+        this.iv = iv;
         this.balance = balance;
         this.status = status;
         this.expirationDate = expirationDate;
@@ -65,20 +73,36 @@ public class Card {
         this.owner = owner;
     }
 
-    public String getNumberHash() {
-        return numberHash;
+    public String getOwnerName() {
+        return ownerName;
     }
 
-    public void setNumberHash(String numberHash) {
-        this.numberHash = numberHash;
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
-    public String getLastDigits() {
-        return lastDigits;
+    public String getEncryptedNumber() {
+        return encryptedNumber;
     }
 
-    public void setLastDigits(String lastDigits) {
-        this.lastDigits = lastDigits;
+    public void setEncryptedNumber(String numberHash) {
+        this.encryptedNumber = numberHash;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    public String getIv() {
+        return iv;
+    }
+
+    public void setIv(String iv) {
+        this.iv = iv;
     }
 
     public BigDecimal getBalance() {
@@ -108,8 +132,10 @@ public class Card {
     public Card(Builder builder) {
         this.id = builder.id;
         this.owner = builder.owner;
-        this.numberHash = builder.numberHash;
-        this.lastDigits = builder.lastDigits;
+        this.ownerName = builder.ownerName;
+        this.encryptedNumber = builder.encryptedNumber;
+        this.salt = builder.salt;
+        this.iv = builder.iv;
         this.balance = builder.balance != null ? builder.balance : BigDecimal.ZERO;
         this.status = builder.status != null ? builder.status : CardStatus.ACTIVE;
         this.expirationDate = builder.expirationDate != null ? builder.expirationDate : Instant.now().plus(10, ChronoUnit.YEARS);
@@ -122,8 +148,10 @@ public class Card {
     public static class Builder {
         private UUID id;
         private User owner;
-        private String numberHash;
-        private String lastDigits;
+        private String ownerName;
+        private String encryptedNumber;
+        private String salt;
+        private String iv;
         private BigDecimal balance;
         private CardStatus status;
         private Instant expirationDate;
@@ -138,13 +166,23 @@ public class Card {
             return this;
         }
 
-        public Builder numberHash(String numberHash) {
-            this.numberHash = numberHash;
+        public Builder ownerName(String ownerName) {
+            this.ownerName = ownerName;
             return this;
         }
 
-        public Builder lastDigits(String lastDigits) {
-            this.lastDigits = lastDigits;
+        public Builder encryptedNumber(String encryptedNumber) {
+            this.encryptedNumber = encryptedNumber;
+            return this;
+        }
+
+        public Builder salt(String salt) {
+            this.salt = salt;
+            return this;
+        }
+
+        public Builder iv(String iv) {
+            this.iv = iv;
             return this;
         }
 
@@ -165,9 +203,11 @@ public class Card {
 
         public Card build() {
             if (owner == null) throw new IllegalStateException("user is required");
+            if (ownerName == null) throw new IllegalStateException("owner is required");
             if (id == null) throw new IllegalStateException("id is required");
-            if (numberHash == null) throw new IllegalStateException("numberHash is required");
-            if (lastDigits == null) throw new IllegalStateException("lastDigits is required");
+            if (salt == null) throw new IllegalStateException("salt is required");
+            if (iv == null) throw new IllegalStateException("iv is required");
+            if (encryptedNumber == null) throw new IllegalStateException("numberHash is required");
             return new Card(this);
         }
     }

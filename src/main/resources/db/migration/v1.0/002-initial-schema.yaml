@@ -71,14 +71,26 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: number_hash
+                  name: owner_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: encrypted_number
                   type: varchar(128)
                   constraints:
                     nullable: false
                     unique: true
               - column:
-                  name: last_digits
-                  type: varchar(4)
+                  name: salt
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: iv
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
               - column:
                   name: balance
                   type: numeric(12, 2)
