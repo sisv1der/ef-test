@@ -49,7 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (JwtServiceException e) {
-                throw new AuthenticationServiceException("Failed to parse token", e);
+                logger.warn("Invalid JWT token", e);
             }
         }
 
