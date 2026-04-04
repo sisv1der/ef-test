@@ -1,6 +1,6 @@
 package com.example.bankcards.security;
 
-import com.nimbusds.jose.JOSEException;
+import com.example.bankcards.exception.JwtServiceException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Collection;
 
 @Component
@@ -49,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     );
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            } catch (ParseException | JOSEException e) {
+            } catch (JwtServiceException e) {
                 throw new AuthenticationServiceException("Failed to parse token", e);
             }
         }
