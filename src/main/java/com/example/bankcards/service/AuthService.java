@@ -3,7 +3,6 @@ package com.example.bankcards.service;
 import com.example.bankcards.dto.LoginRequest;
 import com.example.bankcards.dto.LoginResponse;
 import com.example.bankcards.entity.User;
-import com.example.bankcards.repository.UserRepository;
 import com.example.bankcards.security.JwtService;
 import com.example.bankcards.security.UserSecurity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,18 +12,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserService userService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
-        this.userRepository = userRepository;
+    public AuthService(PasswordEncoder passwordEncoder, JwtService jwtService, UserService userService) {
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     public LoginResponse authenticate(LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.username())
+        User user = userService.findByUsername(loginRequest.username())
                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
 
         if (!passwordEncoder.matches(loginRequest.password(), user.getPasswordHash())) {
