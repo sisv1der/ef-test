@@ -1,7 +1,7 @@
 package com.example.bankcards.service;
 
 import com.example.bankcards.entity.Card;
-import com.example.bankcards.util.EncryptedRecord;
+import com.example.bankcards.dto.EncryptedRecord;
 import com.example.bankcards.util.EncryptionService;
 import org.springframework.stereotype.Service;
 
