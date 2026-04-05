@@ -25,6 +25,7 @@ public class EncryptionService {
     private static final Logger log = LoggerFactory.getLogger(EncryptionService.class);
     private final EncryptionProperties encryptionProperties;
     private static final String ALGORITHM = "AES/GCM/NoPadding";
+    private static final SecureRandom secureRandom = new SecureRandom();
 
     public EncryptionService(EncryptionProperties encryptionProperties) {
         this.encryptionProperties = encryptionProperties;
@@ -32,13 +33,13 @@ public class EncryptionService {
 
     public String generateSalt() {
         byte[] salt = new byte[16];
-        new SecureRandom().nextBytes(salt);
+        secureRandom.nextBytes(salt);
         return Base64.getEncoder().encodeToString(salt);
     }
 
     public String generateIv() {
         byte[] iv = new byte[12];
-        new SecureRandom().nextBytes(iv);
+        secureRandom.nextBytes(iv);
         return Base64.getEncoder().encodeToString(iv);
     }
 

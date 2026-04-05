@@ -50,6 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             } catch (JwtServiceException e) {
                 logger.warn("Invalid JWT token", e);
+                SecurityContextHolder.clearContext();
             }
         }
 

@@ -23,12 +23,14 @@ public class JwtService {
     private static final Logger log = LoggerFactory.getLogger(JwtService.class);
     private final JwtProperties jwtProperties;
     private final MACSigner signer;
+    private final MACVerifier verifier;
 
     public JwtService(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
         try {
             this.signer = new MACSigner(getSecretKey());
-        } catch (KeyLengthException e) {
+            this.verifier = new MACVerifier(getSecretKey());
+        } catch (JOSEException e) {
             log.error("failed to create JwtService bean", e);
             throw new JwtServiceException("failed to create JwtService bean", e);
         }
@@ -70,8 +72,8 @@ public class JwtService {
 
         boolean validSignature;
         try {
-            validSignature = signedJWT.verify(new MACVerifier(getSecretKey()));
-        } catch (JOSEException e) {
+            validSignature = "BankCards".equals(signedJWT.getJWTClaimsSet().getIssuer()) && signedJWT.verify(verifier);
+        } catch (JOSEException | ParseException e) {
             log.warn("Failed to verify token", e);
             throw new JwtServiceException("Failed to verify token", e);
         }
