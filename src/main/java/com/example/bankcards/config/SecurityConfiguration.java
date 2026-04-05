@@ -1,7 +1,6 @@
 package com.example.bankcards.config;
 
 import com.example.bankcards.security.JwtFilter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +13,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Map;
 
@@ -22,12 +22,12 @@ public class SecurityConfiguration {
 
     private final JwtFilter jwtFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
-    public SecurityConfiguration(JwtFilter jwtFilter, AuthenticationEntryPoint authenticationEntryPoint, ObjectMapper objectMapper) {
+    public SecurityConfiguration(JwtFilter jwtFilter, AuthenticationEntryPoint authenticationEntryPoint, JsonMapper jsonMapper) {
         this.jwtFilter = jwtFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
-        this.objectMapper = objectMapper;
+        this.jsonMapper = jsonMapper;
     }
 
     @Bean
@@ -45,7 +45,7 @@ public class SecurityConfiguration {
                                     response.setContentType("application/json");
                                     response.setCharacterEncoding("UTF-8");
                                     response.getWriter().write(
-                                            objectMapper.writeValueAsString(
+                                            jsonMapper.writeValueAsString(
                                                     Map.of(
                                                             "status", 403,
                                                             "error", "Forbidden",
