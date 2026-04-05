@@ -2,7 +2,6 @@ package com.example.bankcards.controller;
 
 import com.example.bankcards.dto.LoginRequest;
 import com.example.bankcards.service.AuthService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +19,14 @@ public class AuthController {
     }
 
     @PostMapping
-    public ResponseEntity<?> authenticate(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticate(@RequestBody LoginRequest loginRequest) {
+        if (loginRequest.username().isEmpty()) {
+            throw new IllegalArgumentException("Username must not be blank");
+        }
+        if (loginRequest.password().isEmpty()) {
+            throw new IllegalArgumentException("Password must not be blank");
+        }
+
         return ResponseEntity.ok(authService.authenticate(loginRequest));
     }
 }
