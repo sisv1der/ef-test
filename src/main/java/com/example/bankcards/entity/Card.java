@@ -5,8 +5,7 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.YearMonth;
 import java.util.UUID;
 
 @Entity
@@ -40,12 +39,13 @@ public class Card {
     private CardStatus status;
 
     @Column(nullable = false)
-    private Instant expirationDate;
+    @Convert(converter = YearMonthAttributeConverter.class)
+    private YearMonth expirationDate;
 
     public Card() {
     }
 
-    public Card(UUID id, User owner, String ownerName, String encryptedNumber, String salt, String iv, BigDecimal balance, CardStatus status, Instant expirationDate) {
+    public Card(UUID id, User owner, String ownerName, String encryptedNumber, String salt, String iv, BigDecimal balance, CardStatus status, YearMonth expirationDate) {
         this.id = id;
         this.owner = owner;
         this.ownerName = ownerName;
@@ -121,11 +121,11 @@ public class Card {
         this.status = status;
     }
 
-    public Instant getExpirationDate() {
+    public YearMonth getExpirationDate() {
         return expirationDate;
     }
 
-    public void setExpirationDate(Instant expirationDate) {
+    public void setExpirationDate(YearMonth expirationDate) {
         this.expirationDate = expirationDate;
     }
 
@@ -138,7 +138,9 @@ public class Card {
         this.iv = builder.iv;
         this.balance = builder.balance != null ? builder.balance : BigDecimal.ZERO;
         this.status = builder.status != null ? builder.status : CardStatus.ACTIVE;
-        this.expirationDate = builder.expirationDate != null ? builder.expirationDate : Instant.now().plus(10, ChronoUnit.YEARS);
+        this.expirationDate = builder.expirationDate != null
+                ? builder.expirationDate
+                : YearMonth.now().plusYears(10);
     }
 
     public static Builder builder() {
@@ -154,7 +156,7 @@ public class Card {
         private String iv;
         private BigDecimal balance;
         private CardStatus status;
-        private Instant expirationDate;
+        private YearMonth expirationDate;
 
         public Builder id(UUID id) {
             this.id = id;
@@ -196,7 +198,7 @@ public class Card {
             return this;
         }
 
-        public Builder expirationDate(Instant expirationDate) {
+        public Builder expirationDate(YearMonth expirationDate) {
             this.expirationDate = expirationDate;
             return this;
         }
