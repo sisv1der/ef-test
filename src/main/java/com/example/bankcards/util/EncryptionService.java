@@ -48,8 +48,8 @@ public class EncryptionService {
         try {
             factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         } catch (NoSuchAlgorithmException e) {
-            log.error("No such algorithm", e);
-            throw new EncryptionServiceException("No such algorithm", e);
+            log.error("Key generation failed: no such algorithm", e);
+            throw new EncryptionServiceException("Key generation failed", e);
         }
 
         byte[] salt = Base64.getDecoder().decode(saltBase64);
@@ -62,8 +62,8 @@ public class EncryptionService {
         try {
             return new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
         } catch (InvalidKeySpecException e) {
-            log.error("Invalid key spec", e);
-            throw new EncryptionServiceException("Invalid key spec", e);
+            log.error("Key generation failed: invalid key spec", e);
+            throw new EncryptionServiceException("Key generation failed", e);
         }
     }
 
@@ -84,11 +84,11 @@ public class EncryptionService {
             byte[] cipherText = cipher.doFinal(input.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(cipherText);
         } catch (IllegalBlockSizeException e) {
-            log.error("Illegal block size", e);
-            throw new EncryptionServiceException("Illegal block size", e);
+            log.error("Encryption failed: illegal block size", e);
+            throw new EncryptionServiceException("Encryption failed", e);
         } catch (BadPaddingException e) {
-            log.error("Bad padding", e);
-            throw new EncryptionServiceException("Bad padding", e);
+            log.error("Encryption failed: bad padding", e);
+            throw new EncryptionServiceException("Encryption failed", e);
         }
     }
 
@@ -102,11 +102,11 @@ public class EncryptionService {
         try {
             plainText = cipher.doFinal(Base64.getDecoder().decode(cipherText.getBytes(StandardCharsets.UTF_8)));
         } catch (IllegalBlockSizeException e) {
-            log.error("Illegal block size", e);
-            throw new EncryptionServiceException("Illegal block size", e);
+            log.error("Decryption failed: illegal block size", e);
+            throw new EncryptionServiceException("Decryption failed", e);
         } catch (BadPaddingException e) {
-            log.error("Bad padding", e);
-            throw new EncryptionServiceException("Bad padding", e);
+            log.error("Decryption failed: bad padding", e);
+            throw new EncryptionServiceException("Decryption failed", e);
         }
         return new String(plainText, StandardCharsets.UTF_8);
     }
@@ -117,22 +117,22 @@ public class EncryptionService {
         try {
             cipher = Cipher.getInstance(ALGORITHM);
         } catch (NoSuchAlgorithmException e) {
-            log.error("No such algorithm", e);
-            throw new EncryptionServiceException("No such algorithm", e);
+            log.error("Cipher generation failed: no such algorithm", e);
+            throw new EncryptionServiceException("Cipher generation failed", e);
         } catch (NoSuchPaddingException e) {
-            log.error("No such padding", e);
-            throw new EncryptionServiceException("No such padding", e);
+            log.error("Cipher generation failed: no such padding", e);
+            throw new EncryptionServiceException("Cipher generation failed", e);
         }
 
         try {
             cipher.init(opmode, key, getGCMParameterSpec(iv));
             return cipher;
         } catch (InvalidKeyException e) {
-            log.error("Invalid key provided", e);
-            throw new EncryptionServiceException("Invalid key provided", e);
+            log.error("Cipher generation failed: invalid key provided", e);
+            throw new EncryptionServiceException("Cipher generation failed", e);
         } catch (InvalidAlgorithmParameterException e) {
-            log.error("Invalid IV provided", e);
-            throw new EncryptionServiceException("Invalid IV provided", e);
+            log.error("Cipher generation failed: invalid IV provided", e);
+            throw new EncryptionServiceException("Cipher generation failed", e);
         }
     }
 }
