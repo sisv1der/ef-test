@@ -1,8 +1,10 @@
 package com.example.bankcards.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -43,6 +45,56 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Card encryption failed",
                 CARD_ENCRYPTION_FAILED,
+                request
+        );
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ProblemDetail handleAuthorizationDeniedException(WebRequest request) {
+        return getProblemDetail(
+                HttpStatus.FORBIDDEN,
+                "Authorization failed",
+                AUTHORIZATION_FAILED,
+                request
+        );
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ProblemDetail handleEntityNotFoundException(WebRequest request) {
+        return getProblemDetail(
+                HttpStatus.NOT_FOUND,
+                "Resource not found",
+                NOT_FOUND,
+                request
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgumentException(WebRequest request, Throwable ex) {
+        return getProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Validation failed: " + ex.getMessage(),
+                BAD_REQUEST,
+                request
+        );
+    }
+
+    @ExceptionHandler(CardStatusChangeException.class)
+    public ProblemDetail handleCardStatusChangeException(WebRequest request) {
+        return getProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Card status change failed",
+                BAD_REQUEST,
+                request
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleException(WebRequest request) {
+        return getProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Internal server error",
+                INTERNAL_SERVER_ERROR,
                 request
         );
     }

@@ -19,7 +19,7 @@
     <description>Тестовое задание: система управления банковскими картами</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>17</java.version>
         <nimbus-jose-jwt.version>10.0.2</nimbus-jose-jwt.version>
     </properties>
 
