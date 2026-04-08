@@ -24,4 +24,8 @@ public class AuthenticationService {
         }
         return authentication;
     }
+
+    public boolean isMe(String username) {
+        return getAuthentication().getName().equals(username);
+    }
 }

@@ -169,10 +169,11 @@ public class User {
         }
 
         public User build() {
-            if (id == null) throw new IllegalStateException("id is required");
+            if (id == null) id = UUID.randomUUID();
             if (username == null) throw new IllegalStateException("username is required");
             if (passwordHash == null) throw new IllegalStateException("passwordHash is required");
-            if (role == null) throw new IllegalStateException("role is required");
+            if (role == null) role = Role.USER;
+            if (isActive == null) isActive = true;
             return new User(this);
         }
     }

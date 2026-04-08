@@ -153,6 +153,12 @@ public class CardControllerTest {
     }
 
     @Test
+    void getCard_shouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/cards/{id}", cardInfoResponse.cardId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @WithMockUser(roles = {"ADMIN"})
     void getCards_shouldReturnCards_whenIsAdmin() throws Exception {
         Page<CardInfoResponse> page = new PageImpl<>(List.of(cardInfoResponse), PageRequest.of(0, 10), 5);
@@ -184,6 +190,12 @@ public class CardControllerTest {
                 .andExpect(status().isOk());
 
         verify(cardService).getCards(eq(CardStatus.ACTIVE), eq("username"), any(Pageable.class));
+    }
+
+    @Test
+    void getCards_shouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/cards"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -277,6 +289,12 @@ public class CardControllerTest {
     }
 
     @Test
+    void updateCard_shouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(patch("/api/cards/{id}", cardInfoResponse.cardId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @WithMockUser(roles = {"ADMIN"})
     void createCard_shouldReturnCreated_whenIsAdmin() throws Exception {
         when(cardService.createCard(any(CreateCardRequest.class)))
@@ -338,6 +356,12 @@ public class CardControllerTest {
     }
 
     @Test
+    void createCard_shouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(post("/api/cards"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @WithMockUser(roles = {"ADMIN"})
     void deleteCard_shouldReturnNoContent_whenIsAdmin() throws Exception {
         doNothing().when(cardService).deleteCard(any(UUID.class));
@@ -366,5 +390,11 @@ public class CardControllerTest {
                 .andExpect(status().isForbidden());
 
         verify(cardService, never()).deleteCard(any(UUID.class));
+    }
+
+    @Test
+    void deleteCard_shouldReturnUnauthorized() throws Exception {
+        mockMvc.perform(delete("/api/cards/" + cardInfoResponse.cardId()))
+                .andExpect(status().isUnauthorized());
     }
 }

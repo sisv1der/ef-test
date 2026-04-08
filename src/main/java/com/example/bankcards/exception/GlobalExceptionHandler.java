@@ -1,8 +1,10 @@
 package com.example.bankcards.exception;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -85,6 +87,26 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 "Card status change failed",
                 BAD_REQUEST,
+                request
+        );
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ProblemDetail handleEntityExistsException(WebRequest request, Throwable ex) {
+        return getProblemDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage(),
+                CONFLICT,
+                request
+        );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(WebRequest request) {
+        return getProblemDetail(
+                HttpStatus.FORBIDDEN,
+                "This operation is forbidden",
+                FORBIDDEN,
                 request
         );
     }
