@@ -6,12 +6,14 @@ import com.example.bankcards.entity.CardStatus;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.CardStatusChangeException;
 import com.example.bankcards.repository.CardRepository;
+import com.example.bankcards.repository.CardSpecification;
 import com.example.bankcards.util.CardGenerator;
 import com.example.bankcards.util.CardMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -49,27 +51,16 @@ public class CardService {
     }
 
     public Page<CardInfoResponse> getCards(CardStatus status, String username, Pageable pageable) {
-        Page<Card> cards;
-        if (isAdmin()) {
-            if (username != null && status != null) {
-                cards = cardRepository.findByOwnerUsernameAndStatus(username, status, pageable);
-            } else if (status != null) {
-                cards = cardRepository.findByStatus(status, pageable);
-            } else if (username != null) {
-                cards = cardRepository.findByOwnerUsername(username, pageable);
-            } else {
-                cards = cardRepository.findAll(pageable);
-            }
-        } else {
+        if (!isAdmin()) {
             username = getUsername();
-            if (status != null) {
-                cards = cardRepository.findByOwnerUsernameAndStatus(username, status, pageable);
-            } else {
-                cards = cardRepository.findByOwnerUsername(username, pageable);
-            }
         }
 
-        return cards.map(this::getCardInfo);
+        Specification<Card> spec = Specification
+                .where(CardSpecification.hasStatus(status))
+                .and(CardSpecification.hasOwnerUsername(username));
+
+        return cardRepository.findAll(spec, pageable)
+                .map(this::getCardInfo);
     }
 
     private CardInfoResponse getCardInfo(Card card) {

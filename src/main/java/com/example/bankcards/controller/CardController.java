@@ -57,6 +57,12 @@ public class CardController {
         if (request.ownerName().isBlank()) {
             throw new IllegalArgumentException("Owner name must not be blank");
         }
+        if (request.ownerName().length() > 32) {
+            throw new IllegalArgumentException("Owner name must not be longer than 32 characters");
+        }
+        if (request.ownerName().length() < 5) {
+            throw new IllegalArgumentException("Owner name must have at least 5 characters");
+        }
 
         CardInfoResponse response = cardService.createCard(request);
         URI location = ServletUriComponentsBuilder

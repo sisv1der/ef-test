@@ -14,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -155,7 +157,7 @@ public class CardServiceTest {
     void getCards_whenIsAdminAndStatusProvidedAndUsernameProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(true);
-        when(cardRepository.findByOwnerUsernameAndStatus(any(), any(), any(Pageable.class)))
+        when(cardRepository.findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
@@ -167,17 +169,14 @@ public class CardServiceTest {
         assertEquals(cardInfoResponse, result.getContent().get(0));
 
         verify(authenticationService).isAdmin(any());
-        verify(cardRepository).findByOwnerUsernameAndStatus(any(), any(), any());
-        verify(cardRepository, never()).findByStatus(any(), any());
-        verify(cardRepository, never()).findByOwnerUsername(any(), any());
-        verify(cardRepository, never()).findAll(any(Pageable.class));
+        verify(cardRepository).findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class));
     }
 
     @Test
     void getCards_whenIsAdminAndStatusNotProvidedAndUsernameProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(true);
-        when(cardRepository.findByOwnerUsername(any(), any(Pageable.class)))
+        when(cardRepository.findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
@@ -189,17 +188,14 @@ public class CardServiceTest {
         assertEquals(cardInfoResponse, result.getContent().get(0));
 
         verify(authenticationService).isAdmin(any());
-        verify(cardRepository, never()).findByOwnerUsernameAndStatus(any(), any(), any());
-        verify(cardRepository, never()).findByStatus(any(), any());
-        verify(cardRepository).findByOwnerUsername(any(), any());
-        verify(cardRepository, never()).findAll(any(Pageable.class));
+        verify(cardRepository).findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class));
     }
 
     @Test
     void getCards_whenIsAdminAndStatusProvidedAndUsernameNotProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(true);
-        when(cardRepository.findByStatus(any(), any(Pageable.class)))
+        when(cardRepository.findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
@@ -211,17 +207,14 @@ public class CardServiceTest {
         assertEquals(cardInfoResponse, result.getContent().get(0));
 
         verify(authenticationService).isAdmin(any());
-        verify(cardRepository, never()).findByOwnerUsernameAndStatus(any(), any(), any());
-        verify(cardRepository).findByStatus(any(), any());
-        verify(cardRepository, never()).findByOwnerUsername(any(), any());
-        verify(cardRepository, never()).findAll(any(Pageable.class));
+        verify(cardRepository).findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class));
     }
 
     @Test
     void getCards_whenIsAdminAndStatusNotProvidedAndUsernameNotProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(true);
-        when(cardRepository.findAll(any(Pageable.class)))
+        when(cardRepository.findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
@@ -233,17 +226,14 @@ public class CardServiceTest {
         assertEquals(cardInfoResponse, result.getContent().get(0));
 
         verify(authenticationService).isAdmin(any());
-        verify(cardRepository, never()).findByOwnerUsernameAndStatus(any(), any(), any());
-        verify(cardRepository, never()).findByStatus(any(), any());
-        verify(cardRepository, never()).findByOwnerUsername(any(), any());
-        verify(cardRepository).findAll(any(Pageable.class));
+        verify(cardRepository).findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class));
     }
 
     @Test
     void getCards_whenIsNotAdminAndStatusProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(false);
-        when(cardRepository.findByOwnerUsernameAndStatus(any(), any(), any(Pageable.class)))
+        when(cardRepository.findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
@@ -255,17 +245,14 @@ public class CardServiceTest {
         assertEquals(cardInfoResponse, result.getContent().get(0));
 
         verify(authenticationService).isAdmin(any());
-        verify(cardRepository).findByOwnerUsernameAndStatus(any(), any(), any());
-        verify(cardRepository, never()).findByStatus(any(), any());
-        verify(cardRepository, never()).findByOwnerUsername(any(), any());
-        verify(cardRepository, never()).findAll(any(Pageable.class));
+        verify(cardRepository).findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class));
     }
 
     @Test
     void getCards_whenIsNotAdminAndStatusNotProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(false);
-        when(cardRepository.findByOwnerUsername(any(), any(Pageable.class)))
+        when(cardRepository.findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
@@ -277,10 +264,7 @@ public class CardServiceTest {
         assertEquals(cardInfoResponse, result.getContent().get(0));
 
         verify(authenticationService).isAdmin(any());
-        verify(cardRepository, never()).findByOwnerUsernameAndStatus(any(), any(), any());
-        verify(cardRepository, never()).findByStatus(any(), any());
-        verify(cardRepository).findByOwnerUsername(any(), any());
-        verify(cardRepository, never()).findAll(any(Pageable.class));
+        verify(cardRepository).findAll(ArgumentMatchers.<Specification<Card>>any(), any(Pageable.class));
     }
 
     @Test
@@ -386,7 +370,7 @@ public class CardServiceTest {
 
         cardService.deleteCard(card.getId());
 
-        verify(cardRepository).delete(any());
+        verify(cardRepository).delete(any(Card.class));
     }
 
     @Test
@@ -396,6 +380,6 @@ public class CardServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> cardService.deleteCard(card.getId()));
 
-        verify(cardRepository, never()).delete(any());
+        verify(cardRepository, never()).delete(any(Card.class));
     }
 }
