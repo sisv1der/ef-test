@@ -34,11 +34,11 @@ public class CardController {
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping
     public Page<?> getCards(
-            Pageable pageable,
             @RequestParam(required = false) CardStatus status,
-            @RequestParam(required = false) String username
+            @RequestParam(required = false) String username,
+            Pageable pageable
     ) {
-        return cardService.getCards(pageable, status, username);
+        return cardService.getCards(status, username, pageable);
     }
 
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER') and @cardService.isOwner(#cardId, principal.username)")

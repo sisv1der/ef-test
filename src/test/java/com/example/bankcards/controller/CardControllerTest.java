@@ -156,7 +156,7 @@ public class CardControllerTest {
     @WithMockUser(roles = {"ADMIN"})
     void getCards_shouldReturnCards_whenIsAdmin() throws Exception {
         Page<CardInfoResponse> page = new PageImpl<>(List.of(cardInfoResponse), PageRequest.of(0, 10), 5);
-        when(cardService.getCards(any(Pageable.class), any(), any()))
+        when(cardService.getCards(any(), any(), any(Pageable.class)))
                 .thenReturn(page);
 
         mockMvc.perform(get("/api/cards")
@@ -166,14 +166,14 @@ public class CardControllerTest {
                 .param("username", "username"))
                 .andExpect(status().isOk());
 
-        verify(cardService).getCards(any(Pageable.class), eq(CardStatus.ACTIVE), eq("username"));
+        verify(cardService).getCards(eq(CardStatus.ACTIVE), eq("username"), any(Pageable.class));
     }
 
     @Test
     @WithMockUser
     void getCards_shouldReturnCards_whenIsUser() throws Exception {
         Page<CardInfoResponse> page = new PageImpl<>(List.of(cardInfoResponse), PageRequest.of(0, 10), 5);
-        when(cardService.getCards(any(Pageable.class), any(), any()))
+        when(cardService.getCards(any(), any(), any(Pageable.class)))
                 .thenReturn(page);
 
         mockMvc.perform(get("/api/cards")
@@ -183,7 +183,7 @@ public class CardControllerTest {
                         .param("username", "username"))
                 .andExpect(status().isOk());
 
-        verify(cardService).getCards(any(Pageable.class), eq(CardStatus.ACTIVE), eq("username"));
+        verify(cardService).getCards(eq(CardStatus.ACTIVE), eq("username"), any(Pageable.class));
     }
 
     @Test

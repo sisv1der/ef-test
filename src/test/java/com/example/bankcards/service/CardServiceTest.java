@@ -155,12 +155,12 @@ public class CardServiceTest {
     void getCards_whenIsAdminAndStatusProvidedAndUsernameProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(true);
-        when(cardRepository.findByOwnerUsernameAndStatus(any(Pageable.class), any(), any()))
+        when(cardRepository.findByOwnerUsernameAndStatus(any(), any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
 
-        Page<CardInfoResponse> result = cardService.getCards(pageable, CardStatus.ACTIVE, "username");
+        Page<CardInfoResponse> result = cardService.getCards(CardStatus.ACTIVE, "username", pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
@@ -177,12 +177,12 @@ public class CardServiceTest {
     void getCards_whenIsAdminAndStatusNotProvidedAndUsernameProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(true);
-        when(cardRepository.findByOwnerUsername(any(Pageable.class), any()))
+        when(cardRepository.findByOwnerUsername(any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
 
-        Page<CardInfoResponse> result = cardService.getCards(pageable, null, "username");
+        Page<CardInfoResponse> result = cardService.getCards(null, "username", pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
@@ -199,12 +199,12 @@ public class CardServiceTest {
     void getCards_whenIsAdminAndStatusProvidedAndUsernameNotProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(true);
-        when(cardRepository.findByStatus(any(Pageable.class), any()))
+        when(cardRepository.findByStatus(any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
 
-        Page<CardInfoResponse> result = cardService.getCards(pageable, CardStatus.ACTIVE, null);
+        Page<CardInfoResponse> result = cardService.getCards(CardStatus.ACTIVE, null, pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
@@ -226,7 +226,7 @@ public class CardServiceTest {
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
 
-        Page<CardInfoResponse> result = cardService.getCards(pageable, null, null);
+        Page<CardInfoResponse> result = cardService.getCards(null, null, pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
@@ -243,12 +243,12 @@ public class CardServiceTest {
     void getCards_whenIsNotAdminAndStatusProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(false);
-        when(cardRepository.findByOwnerUsernameAndStatus(any(Pageable.class), any(), any()))
+        when(cardRepository.findByOwnerUsernameAndStatus(any(), any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
 
-        Page<CardInfoResponse> result = cardService.getCards(pageable, CardStatus.ACTIVE, "username");
+        Page<CardInfoResponse> result = cardService.getCards(CardStatus.ACTIVE, "username", pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
@@ -265,12 +265,12 @@ public class CardServiceTest {
     void getCards_whenIsNotAdminAndStatusNotProvided() {
         when(authenticationService.isAdmin(any()))
                 .thenReturn(false);
-        when(cardRepository.findByOwnerUsername(any(Pageable.class), any()))
+        when(cardRepository.findByOwnerUsername(any(), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(card)));
         when(cardMapper.map(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(cardInfoResponse);
 
-        Page<CardInfoResponse> result = cardService.getCards(pageable, null, "username");
+        Page<CardInfoResponse> result = cardService.getCards(null, "username", pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());

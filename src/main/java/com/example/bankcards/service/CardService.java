@@ -48,24 +48,24 @@ public class CardService {
         return getCardInfo(card);
     }
 
-    public Page<CardInfoResponse> getCards(Pageable pageable, CardStatus status, String username) {
+    public Page<CardInfoResponse> getCards(CardStatus status, String username, Pageable pageable) {
         Page<Card> cards;
         if (isAdmin()) {
             if (username != null && status != null) {
-                cards = cardRepository.findByOwnerUsernameAndStatus(pageable, username, status);
+                cards = cardRepository.findByOwnerUsernameAndStatus(username, status, pageable);
             } else if (status != null) {
-                cards = cardRepository.findByStatus(pageable, status);
+                cards = cardRepository.findByStatus(status, pageable);
             } else if (username != null) {
-                cards = cardRepository.findByOwnerUsername(pageable, username);
+                cards = cardRepository.findByOwnerUsername(username, pageable);
             } else {
                 cards = cardRepository.findAll(pageable);
             }
         } else {
             username = getUsername();
             if (status != null) {
-                cards = cardRepository.findByOwnerUsernameAndStatus(pageable, username, status);
+                cards = cardRepository.findByOwnerUsernameAndStatus(username, status, pageable);
             } else {
-                cards = cardRepository.findByOwnerUsername(pageable, username);
+                cards = cardRepository.findByOwnerUsername(username, pageable);
             }
         }
 

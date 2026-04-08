@@ -14,9 +14,9 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
 
     boolean existsByIdAndOwnerUsername(UUID cardId, String username);
 
-    Page<Card> findByOwnerUsername(Pageable pageable, String username);
+    Page<Card> findByOwnerUsername(String username, Pageable pageable);
 
-    Page<Card> findByOwnerUsernameAndStatus(Pageable pageable, String username, CardStatus status);
+    Page<Card> findByOwnerUsernameAndStatus(String username, CardStatus status, Pageable pageable);
 
-    Page<Card> findByStatus(Pageable pageable, CardStatus status);
+    Page<Card> findByStatus(CardStatus status, Pageable pageable);
 }
