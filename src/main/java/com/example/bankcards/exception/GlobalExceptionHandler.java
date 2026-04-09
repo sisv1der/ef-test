@@ -18,7 +18,7 @@ import static com.example.bankcards.exception.ProblemDetailProvider.getProblemDe
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtServiceException.class)
-    public ProblemDetail handleJOSEException(WebRequest request) {
+    public ProblemDetail handleJwtServiceException(WebRequest request) {
         return getProblemDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "JWT processing failed",

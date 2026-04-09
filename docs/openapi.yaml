@@ -1,1 +1,930 @@
-# Здесь будет OpenAPI описание всех доступных эндпоинтов и моделей данных.
+openapi: 3.1.0
+info:
+  title: Bank Cards API
+  description: API для управления пользователями, картами и переводами
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+security:
+  - bearerAuth: []
+tags:
+  - name: Users API
+    description: API для пользователей
+  - name: Auth API
+    description: API для аутентификации
+  - name: Cards API
+    description: API для управления картами
+  - name: Transfers API
+    description: API для финансовых переводов
+paths:
+  /api/users/{id}:
+    get:
+      tags:
+        - Users API
+      summary: Получить пользователя по ID (только ADMIN)
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор пользователя
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Пользователь найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfoResponse"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Пользователь не найден
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+    put:
+      tags:
+        - Users API
+      summary: Обновить пользователя (только ADMIN)
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор пользователя
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Запрос на обновление данных пользователя
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+        required: true
+      responses:
+        "200":
+          description: Пользователь обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfoResponse"
+        "400":
+          description: Ошибка валидации
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Пользователь не найден
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "409":
+          description: Username уже занят
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+    delete:
+      tags:
+        - Users API
+      summary: Удалить пользователя (только ADMIN)
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор пользователя
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Пользователь удалён
+          content:
+            "*/*":
+              schema:
+                type: object
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён или попытка удалить себя
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Пользователь не найден
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /api/users:
+    get:
+      tags:
+        - Users API
+      summary: Получить список пользователей (только ADMIN)
+      operationId: getUsers
+      parameters:
+        - name: username
+          in: query
+          description: Username пользователя
+          required: false
+          schema:
+            type: string
+          example: john_doe123
+        - name: role
+          in: query
+          description: Роль пользователя
+          required: false
+          schema:
+            type: string
+            enum:
+              - ADMIN
+              - USER
+          example: ADMIN
+        - name: active
+          in: query
+          description: Статус пользователя
+          required: false
+          schema:
+            type: boolean
+          example: true
+        - name: page
+          in: query
+          description: Zero-based page index (0..N)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: The size of the page to be returned
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+        - name: sort
+          in: query
+          description: "Sorting criteria in the format: property,(asc|desc). Default sort
+            order is ascending. Multiple sort criteria are supported."
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Список пользователей получен
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/PageUserInfoResponse"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+    post:
+      tags:
+        - Users API
+      summary: Создать пользователя (только ADMIN)
+      operationId: createUser
+      requestBody:
+        description: Запрос на создание пользователя
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+        required: true
+      responses:
+        "201":
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfoResponse"
+        "400":
+          description: Ошибка валидации
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "409":
+          description: Пользователь уже существует
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /api/transfers:
+    post:
+      tags:
+        - Transfers API
+      summary: Перевести деньги между своими картами
+      description: Только владелец обеих карт может переводить деньги между этими картами
+      operationId: transfer
+      requestBody:
+        description: Запрос на финансовый перевод
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferRequest"
+        required: true
+      responses:
+        "200":
+          description: Перевод произведён успешно
+          content:
+            "*/*":
+              schema:
+                type: object
+        "400":
+          description: Ошибка валидации тела запроса, либо на карте недостаточно денег
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: "Ошибка доступа: либо не совпадает роль, либо одна из карт не
+            принадлежит пользователю, либо одна из карт неактивна"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /api/cards:
+    get:
+      tags:
+        - Cards API
+      summary: Получить список карт
+      description: ADMIN видит все карты, USER может видеть только свои
+      operationId: getCards
+      parameters:
+        - name: status
+          in: query
+          description: Статус карты
+          required: false
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - BLOCKED
+              - EXPIRED
+        - name: username
+          in: query
+          description: Имя пользователя
+          required: false
+          schema:
+            type: string
+          example: john_doe1999
+        - name: page
+          in: query
+          description: Zero-based page index (0..N)
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: The size of the page to be returned
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+        - name: sort
+          in: query
+          description: "Sorting criteria in the format: property,(asc|desc). Default sort
+            order is ascending. Multiple sort criteria are supported."
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Страница карт получена
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/PageCardInfoResponse"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+    post:
+      tags:
+        - Cards API
+      summary: Создать карту
+      description: Только ADMIN может создать карту
+      operationId: createCard
+      requestBody:
+        description: Запрос на создание карты
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCardRequest"
+        required: true
+      responses:
+        "201":
+          description: Карта создана
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardInfoResponse"
+        "400":
+          description: Неверные данные владельца
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Пользователь не найден
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /api/auth:
+    post:
+      tags:
+        - Auth API
+      summary: Аутентифицироваться
+      description: Публичный эндпоинт
+      operationId: authenticate
+      requestBody:
+        description: Пара логин/пароль
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: Аутентификация прошла успешно
+          content:
+            "*/*":
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Валидация пароля или username не прошла
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Пароль или username не подходят
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Ошибка генерации JSON Web Token
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /api/cards/{cardId}:
+    get:
+      tags:
+        - Cards API
+      summary: Получить карту по ID
+      description: ADMIN или владелец карты может получить данные карты
+      operationId: getCard
+      parameters:
+        - name: cardId
+          in: path
+          description: Идентификатор карты
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Карта найдена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardInfoResponse"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Карта не найдена
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Ошибка расшифровки карты
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+    delete:
+      tags:
+        - Cards API
+      summary: Удалить карту
+      description: Только ADMIN может удалить карту
+      operationId: deleteCard
+      parameters:
+        - name: cardId
+          in: path
+          description: Идентификатор карты
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Карта удалена
+          content:
+            "*/*":
+              schema:
+                type: object
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Карта не найдена
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+    patch:
+      tags:
+        - Cards API
+      summary: Обновить статус карты
+      description: ADMIN или владелец карты может обновить статус
+      operationId: updateCardStatus
+      parameters:
+        - name: cardId
+          in: path
+          description: Идентификатор карты
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Запрос на обновление статуса карты
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCardStatusRequest"
+        required: true
+      responses:
+        "200":
+          description: Статус карты обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardInfoResponse"
+        "400":
+          description: Ошибка смены статуса карты
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: Доступ запрещён
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Карта не найдена
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /api/users/me:
+    get:
+      tags:
+        - Users API
+      summary: Получить текущего пользователя
+      operationId: getMe
+      responses:
+        "200":
+          description: Пользователь получен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserInfoResponse"
+        "401":
+          description: Неавторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+components:
+  schemas:
+    UpdateUserRequest:
+      type: object
+      description: Запрос на обновление пользователяё
+      properties:
+        username:
+          type: string
+          description: Новый username пользователя
+          example: john_doe321
+          maxLength: 32
+          minLength: 6
+        password:
+          type: string
+          description: Новый пароль пользователя
+          example: not_very_strong_password
+          maxLength: 32
+          minLength: 6
+        role:
+          type: string
+          description: Новая роль пользователя
+          enum:
+            - ADMIN
+            - USER
+          example: ADMIN
+        isActive:
+          type: boolean
+          description: Статус пользователя
+          example: true
+      required:
+        - isActive
+        - password
+        - role
+        - username
+    UserInfoResponse:
+      type: object
+      description: Информация о пользователе
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор пользователя
+          example: 64e387b5-f43d-4595-85c8-51cef15e647a
+        username:
+          type: string
+          description: Username пользователя
+          example: john_doe123
+        role:
+          type: string
+          description: Роль пользователя
+          enum:
+            - ADMIN
+            - USER
+          example: ADMIN
+        isActive:
+          type: boolean
+          description: Статус пользователя (активен или нет)
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp момента создания пользователя
+          example: 2026-04-09T08:15:30.123456Z
+    ProblemDetail:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        properties:
+          type: object
+          additionalProperties: {}
+    CreateUserRequest:
+      type: object
+      description: Запрос на создание пользователя
+      properties:
+        username:
+          type: string
+          description: Username нового пользователя
+          example: john_doe123
+          maxLength: 32
+          minLength: 6
+        password:
+          type: string
+          description: Пароль нового пользователя
+          example: v3ry_s7r0n9_p4$$w0rd
+          maxLength: 32
+          minLength: 6
+        role:
+          type: string
+          description: Роль нового пользователя
+          enum:
+            - ADMIN
+            - USER
+          example: ADMIN
+      required:
+        - password
+        - role
+        - username
+    TransferRequest:
+      type: object
+      description: Запрос на перевод с одной карты на другую
+      properties:
+        sourceCardId:
+          type: string
+          format: uuid
+          description: Идентификатор карты, с которой будет осуществлён перевод. Не может
+            совпадать с targetCardId
+          example: 64e387b5-f43d-4595-85c8-51cef15e647a
+        targetCardId:
+          type: string
+          format: uuid
+          description: Идентификатор карты, на которую будет осуществлён перевод. Не может
+            совпадать с sourceCardId
+          example: 64e387b5-f43d-4595-85c8-51cef15e647a
+        amount:
+          type: number
+          description: Количество денег, которое будет переведёно. Должно быть больше нуля
+          example: "100.00"
+          minimum: 0.01
+      required:
+        - amount
+        - sourceCardId
+        - targetCardId
+    CreateCardRequest:
+      type: object
+      description: Запрос на создание карты
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: Идентификатор пользователя
+          example: 64e387b5-f43d-4595-85c8-51cef15e647a
+        ownerName:
+          type: string
+          description: Имя владельца
+          example: IVAN IVANOV
+          maxLength: 32
+          minLength: 5
+      required:
+        - ownerName
+        - userId
+    CardInfoResponse:
+      type: object
+      description: Информация о карте
+      properties:
+        cardId:
+          type: string
+          format: uuid
+          description: Идентификатор карты
+          example: 64e387b5-f43d-4595-85c8-51cef15e647a
+        maskedNumber:
+          type: string
+          description: Замаскированный PAN
+          example: "**** **** **** 1234"
+        cardStatus:
+          type: string
+          description: Статус карты
+          enum:
+            - ACTIVE
+            - BLOCKED
+            - EXPIRED
+          example: ACTIVE
+        ownerName:
+          type: string
+          description: Имя владельца
+          example: IVAN IVANOV
+        ownerId:
+          type: string
+          format: uuid
+          description: Идентификатор владельца
+          example: 64e387b5-f43d-4595-85c8-51cef15e647a
+        expirationDate:
+          type: string
+          description: ГОД-МЕСЯЦ окончания срока действия карты
+          example: 2026-04
+        balance:
+          type: number
+          description: Баланс карты
+          example: "100.00"
+    LoginRequest:
+      type: object
+      description: Запрос на вход в учётную запись
+      properties:
+        username:
+          type: string
+          description: Username пользователя
+          example: john_doe123
+        password:
+          type: string
+          description: Пароль пользователя
+          example: v3ry_s7r0n9_p4$$w0rd
+      required:
+        - password
+        - username
+    LoginResponse:
+      type: object
+      description: Ответ на запрос на вход в учётную запись
+      properties:
+        token:
+          type: string
+          description: JSON Web Token
+    UpdateCardStatusRequest:
+      type: object
+      description: Запрос на обновление статуса карты
+      properties:
+        cardStatus:
+          type: string
+          description: Новый статус карты
+          enum:
+            - ACTIVE
+            - BLOCKED
+            - EXPIRED
+          example: ACTIVE
+      required:
+        - cardStatus
+    PageUserInfoResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserInfoResponse"
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: "#/components/schemas/SortObject"
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        pageable:
+          $ref: "#/components/schemas/PageableObject"
+        empty:
+          type: boolean
+    PageableObject:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: "#/components/schemas/SortObject"
+        paged:
+          type: boolean
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        unpaged:
+          type: boolean
+    SortObject:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+    PageCardInfoResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/CardInfoResponse"
+        number:
+          type: integer
+          format: int32
+        sort:
+          $ref: "#/components/schemas/SortObject"
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        pageable:
+          $ref: "#/components/schemas/PageableObject"
+        empty:
+          type: boolean
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

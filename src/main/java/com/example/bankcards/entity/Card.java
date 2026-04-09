@@ -9,6 +9,7 @@ import java.time.YearMonth;
 import java.util.UUID;
 
 @Entity
+@Table(name = "cards")
 public class Card {
 
     @Id

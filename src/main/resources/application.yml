@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_URL}/${POSTGRES_DB_NAME}
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${POSTGRES_URL:127.0.0.1}/${POSTGRES_DB_NAME:bankrestdb}
+    username: ${POSTGRES_USERNAME:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -14,7 +14,7 @@ spring:
     change-log: db/migration/db.changelog-master.yaml
 
 jwt:
-  secretKey: ${JWT_SECRET}
+  secretKey: ${JWT_SECRET:sN7v8FzQy0K+7R5GvB9hQ2Lk3v8xJ9Yp2U1rM4Q8t6U=}
   expiration: 3600000 # 1 hour expiration rate
 
 cors:
@@ -36,7 +36,7 @@ logging:
   level:
     root: info
     com.example: debug
-    com.example.bankcards: trace
+    com.example.bankcards: debug
 
 encryption:
-  secret-key: ${CARD_NUMBER_CIPHER_KEY}
+  secret-key: ${CARD_NUMBER_CIPHER_KEY:sN7v8FzQy0K+7R5GvB9hQ2Lk3v8xJ9Yp2U1rM4Q8t6U=}
