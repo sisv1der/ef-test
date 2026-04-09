@@ -111,6 +111,26 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ProblemDetail handleInsufficientFundsException(WebRequest request) {
+        return getProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Not enough money for this transaction",
+                INSUFFICIENT_FUNDS,
+                request
+        );
+    }
+
+    @ExceptionHandler(CardInactiveException.class)
+    public ProblemDetail handleCardInactiveException(WebRequest request) {
+        return getProblemDetail(
+                HttpStatus.FORBIDDEN,
+                "This card is not active",
+                CARD_INACTIVE,
+                request
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleException(WebRequest request) {
         return getProblemDetail(

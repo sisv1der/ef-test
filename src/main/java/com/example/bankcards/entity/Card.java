@@ -130,7 +130,7 @@ public class Card {
     }
 
     public Card(Builder builder) {
-        this.id = builder.id;
+        this.id = builder.id != null ? builder.id : UUID.randomUUID();
         this.owner = builder.owner;
         this.ownerName = builder.ownerName;
         this.encryptedNumber = builder.encryptedNumber;
@@ -206,7 +206,6 @@ public class Card {
         public Card build() {
             if (owner == null) throw new IllegalStateException("user is required");
             if (ownerName == null) throw new IllegalStateException("owner is required");
-            if (id == null) throw new IllegalStateException("id is required");
             if (salt == null) throw new IllegalStateException("salt is required");
             if (iv == null) throw new IllegalStateException("iv is required");
             if (encryptedNumber == null) throw new IllegalStateException("numberHash is required");
