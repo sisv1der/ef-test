@@ -9,14 +9,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
-import java.net.URI;
-import java.time.Instant;
-import java.util.Optional;
-
 import static com.example.bankcards.exception.ErrorCode.*;
+import static com.example.bankcards.exception.ProblemDetailProvider.getProblemDetail;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -139,24 +135,5 @@ public class GlobalExceptionHandler {
                 INTERNAL_SERVER_ERROR,
                 request
         );
-    }
-
-    private ProblemDetail getProblemDetail(
-            HttpStatus status,
-            String message,
-            ErrorCode errorCode,
-            WebRequest request) {
-        String path = ((ServletWebRequest) request).getRequest().getRequestURI();
-        Instant timestamp = Instant.now();
-
-        ProblemDetail pd = ProblemDetail.forStatus(status);
-        pd.setType(URI.create("/errors/" + errorCode.toString()));
-        pd.setTitle(status.getReasonPhrase());
-        pd.setDetail(Optional.ofNullable(message).orElse("UnexpectedError"));
-        pd.setProperty("errorCode", errorCode);
-        pd.setProperty("timestamp", timestamp);
-        pd.setInstance(URI.create(path));
-
-        return pd;
     }
 }
